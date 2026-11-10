@@ -1,12 +1,24 @@
 package biblioteca.main;
-import biblioteca.model.*;
+
+import biblioteca.model.Docente;
+import biblioteca.model.Estudiante;
+import biblioteca.model.Usuario;
 
 public class Main {
 
-    public static void main (String[] args) {
-        Usuario usuario = new Usuario();
+    public static void main(String[] args) {
+        Usuario estudiante = new Estudiante(
+            "Estudiante de prueba", "12345678-5", 'M', "Ingeniería"
+        );
+        Usuario docente = new Docente(
+            "Docente de prueba", "98765432-1", 'F', "Docencia", "Doctorado"
+        );
 
-        // usuario.validarRun("17958873-0");
-        // usuario.validarGenero('M');
+        System.out.println(
+            estudiante.getNombre() + ": máximo " + estudiante.getMaxDiasPrestamo() + " días"
+        );
+        System.out.println(
+            docente.getNombre() + ": máximo " + docente.getMaxDiasPrestamo() + " días"
+        );
     }
 }

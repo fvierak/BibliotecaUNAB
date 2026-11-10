@@ -1,8 +1,6 @@
 package biblioteca.model;
 
-import biblioteca.Biblioteca;
-
-public class Usuario {
+public abstract class Usuario {
     private String nombreCompleto;
     private String run;
     private char genero;
@@ -25,16 +23,7 @@ public class Usuario {
         }
 
         if (validarRun(run) == true) {
-
-            Biblioteca biblioteca = new Biblioteca();
-        
-            if (biblioteca.chequearRun(run) == false) {
-
-                setRun(run);
-            } else if (biblioteca.chequearRun(run) == false) {
-
-                System.out.println("Usuario no creado: Ya se encuentra registrado uno con el mismo RUN");
-            }
+            setRun(run);
         }
         
         // Usuario se inicializa sin prestamos. Es decir, habilitado para recibir prestamos.
@@ -147,9 +136,5 @@ public class Usuario {
     }
 
     // Cada tipo de usuario define su máximo de días
-    public abstract int getMaxDiasPrestamo() {
-        
-    }
-}
-
+    public abstract int getMaxDiasPrestamo();
 }
