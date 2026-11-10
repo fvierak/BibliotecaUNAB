@@ -68,6 +68,12 @@ public class BibliotecaUsuariosTest {
             comprobar(!biblioteca.agregarUsuario(new Estudiante(
                 "Duplicada", "12.345.678-5", 'F', "Otra carrera"
             )), "RUN duplicado con formato equivalente rechazado");
+            Estudiante usuarioConPrestamo = new Estudiante(
+                "Préstamo preasignado", "91111111-K", 'M', "Informática"
+            );
+            usuarioConPrestamo.setPrestamo("9780000000001");
+            comprobar(!biblioteca.agregarUsuario(usuarioConPrestamo),
+                "Alta con préstamo preasignado rechazada");
             comprobar(biblioteca.agregarUsuario(docente), "Crear docente");
             comprobar(biblioteca.buscarUsuario("12.345.678-5") == estudiante,
                 "Búsqueda acepta RUN con puntos");
@@ -76,21 +82,24 @@ public class BibliotecaUsuariosTest {
 
             estudiante.setPrestamo("9780000000000");
             Estudiante estudianteEditado = new Estudiante(
-                "Ana Pérez Actualizada", "87654321-4", 'f', "Ciencias"
+                "Ana Pérez Actualizada", "12345678-5", 'f', "Ciencias"
             );
             comprobar(biblioteca.editarUsuario("12345678-5", estudianteEditado),
                 "Editar usuario existente");
             comprobar(estudianteEditado.getPrestamo().equals("9780000000000"),
                 "Edición conserva el préstamo activo");
-            comprobar(biblioteca.buscarUsuario("12345678-5") == null,
-                "RUN anterior deja de estar registrado");
-            comprobar(biblioteca.buscarUsuario("87654321-4") instanceof Estudiante,
+            comprobar(biblioteca.buscarUsuario("12345678-5") == estudianteEditado,
+                "Búsqueda devuelve el usuario editado");
+            comprobar(biblioteca.buscarUsuario("12345678-5") instanceof Estudiante,
                 "Búsqueda recupera el subtipo estudiante");
-            comprobar(!biblioteca.editarUsuario("87654321-4", new Docente(
+            comprobar(!biblioteca.editarUsuario("12345678-5", new Estudiante(
+                "RUN cambiado", "87654321-4", 'F', "Ciencias"
+            )), "Cambio de RUN con préstamo activo rechazado");
+            comprobar(!biblioteca.editarUsuario("12345678-5", new Docente(
                 "Duplicado", "98765432-5", 'M', "Ingeniería", "Doctorado"
             )), "Edición con RUN duplicado rechazada");
 
-            comprobar(!biblioteca.eliminarUsuario("87654321-4"),
+            comprobar(!biblioteca.eliminarUsuario("12345678-5"),
                 "Eliminación con préstamo activo bloqueada");
             comprobar(!biblioteca.eliminarUsuario("91111111-K"),
                 "Eliminar RUN inexistente no modifica datos");
@@ -107,6 +116,13 @@ public class BibliotecaUsuariosTest {
                 "Persistencia conserva los grados académicos");
 
             estudianteEditado.setPrestamo("0");
+            Estudiante estudianteConRunNuevo = new Estudiante(
+                "Ana Pérez Actualizada", "87654321-4", 'F', "Ciencias"
+            );
+            comprobar(biblioteca.editarUsuario("12345678-5", estudianteConRunNuevo),
+                "Cambio de RUN permitido sin préstamo activo");
+            comprobar(biblioteca.buscarUsuario("12345678-5") == null,
+                "RUN anterior deja de estar registrado");
             comprobar(biblioteca.eliminarUsuario("87654321-4"),
                 "Eliminar usuario sin préstamo activo");
             comprobar(biblioteca.eliminarUsuario("98765432-5"), "Eliminar docente existente");

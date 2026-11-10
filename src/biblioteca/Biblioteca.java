@@ -6,6 +6,7 @@ import java.util.Objects;
 import biblioteca.model.Usuario;
 import biblioteca.data.ArchivoManager;
 import biblioteca.model.Libro;
+import biblioteca.model.Prestamo;
 
 // TODO: Implementar lo pertinente a libro
 
@@ -14,6 +15,7 @@ public class Biblioteca {
     // Listas que almacenan los objetos durante la ejecución
     private final ArrayList<Usuario> usuarios;
     private final ArrayList<Libro> libros;
+    private final ArrayList<Prestamo> prestamos;
     private final ArchivoManager archivoManager;
 
     public Biblioteca() throws IOException {
@@ -23,7 +25,9 @@ public class Biblioteca {
     public Biblioteca(ArchivoManager archivoManager) throws IOException {
         this.archivoManager = Objects.requireNonNull(archivoManager);
         usuarios = archivoManager.cargarUsuarios();
-        libros = new ArrayList<>();
+        libros = archivoManager.cargarLibros();
+        prestamos = archivoManager.cargarPrestamos();
+        archivoManager.validarCoherencia(usuarios, libros, prestamos);
     }
 
     // Comprueba si un RUN ya está registrado
@@ -42,7 +46,7 @@ public class Biblioteca {
     // Agrega un usuario si su RUN no está registrado
     public boolean agregarUsuario(Usuario usuario) throws IOException {
         Objects.requireNonNull(usuario, "El usuario es obligatorio");
-        if (chequearRun(usuario.getRun())) {
+        if (chequearRun(usuario.getRun()) || !"0".equals(usuario.getPrestamo())) {
             return false;
         }
 
@@ -68,6 +72,11 @@ public class Biblioteca {
         Objects.requireNonNull(usuarioActualizado, "El usuario actualizado es obligatorio");
         Usuario usuarioExistente = buscarUsuario(runOriginal);
         if (usuarioExistente == null) {
+            return false;
+        }
+
+        if (!usuarioExistente.getRun().equals(usuarioActualizado.getRun())
+                && !"0".equals(usuarioExistente.getPrestamo())) {
             return false;
         }
 
