@@ -164,7 +164,8 @@ public class ArchivoManager {
             validarLibro(libro);
             registros.add(List.of(libro.getIsbn(), libro.getTitulo(), libro.getAutor(),
                 String.valueOf(libro.getCantidadBiblioteca()),
-                String.valueOf(libro.getCantidadDisponible()), textoOpcional(libro.getImagen())));
+                String.valueOf(libro.getCantidadDisponible()),
+                libro.getImagen() == null ? "" : libro.getImagen()));
         }
 
         escribirRegistros(directorioDatos.resolve("libros.csv"),
@@ -282,9 +283,11 @@ public class ArchivoManager {
         }
 
         for (Libro libro : libros) {
+            // Los disponibles y los préstamos activos no pueden superar el total.
             int activos = prestamosActivosPorIsbn.getOrDefault(libro.getIsbn(), 0);
-            if (libro.getCantidadDisponible() + activos != libro.getCantidadBiblioteca()) {
-                throw new IOException("Inventario inconsistente para el libro " + libro.getIsbn());
+            if (libro.getCantidadDisponible() + activos > libro.getCantidadBiblioteca()) {
+                throw new IOException("Los préstamos activos superan el stock del libro "
+                    + libro.getIsbn());
             }
         }
     }
@@ -442,10 +445,6 @@ public class ArchivoManager {
                 || libro.getCantidadDisponible() > libro.getCantidadBiblioteca()) {
             throw new IOException("Libro con datos o cantidades inválidas: " + libro.getIsbn());
         }
-    }
-
-    private String textoOpcional(String valor) {
-        return valor == null ? "" : valor;
     }
 
     private void validarUsuario(Usuario usuario) throws IOException {

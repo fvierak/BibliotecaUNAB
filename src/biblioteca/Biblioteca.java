@@ -8,8 +8,6 @@ import biblioteca.data.ArchivoManager;
 import biblioteca.model.Libro;
 import biblioteca.model.Prestamo;
 
-// TODO: Implementar lo pertinente a libro
-
 public class Biblioteca {
 
     // Listas que almacenan los objetos durante la ejecución
@@ -107,6 +105,78 @@ public class Biblioteca {
         usuariosActualizados.remove(usuario);
         guardarUsuariosActualizados(usuariosActualizados);
         return true;
+    }
+
+    public Libro buscarLibro(String isbn) {
+        if (isbn == null) {
+            return null;
+        }
+
+        String isbnBuscado = isbn.trim();
+        for (Libro libro : libros) {
+            if (libro.getIsbn().equals(isbnBuscado)) {
+                return libro;
+            }
+        }
+        return null;
+    }
+
+    public boolean agregarLibro(Libro libro) throws IOException {
+        Objects.requireNonNull(libro, "El libro es obligatorio");
+        validarLibroNuevo(libro);
+
+        String isbn = libro.getIsbn().trim();
+        if (buscarLibro(isbn) != null) {
+            return false;
+        }
+        libro.setIsbn(isbn);
+
+        ArrayList<Libro> librosActualizados = new ArrayList<>(libros);
+        librosActualizados.add(libro);
+        guardarLibrosActualizados(librosActualizados);
+        return true;
+    }
+
+    public boolean eliminarLibro(String isbn) throws IOException {
+        Libro libro = buscarLibro(isbn);
+        if (libro == null) {
+            return false;
+        }
+
+        for (Prestamo prestamo : prestamos) {
+            if (prestamo.isActivo() && prestamo.getIsbn().equals(libro.getIsbn())) {
+                return false;
+            }
+        }
+
+        ArrayList<Libro> librosActualizados = new ArrayList<>(libros);
+        librosActualizados.remove(libro);
+        guardarLibrosActualizados(librosActualizados);
+        return true;
+    }
+
+    private void validarLibroNuevo(Libro libro) {
+        if (libro.getIsbn() == null || libro.getIsbn().isBlank()
+                || libro.getTitulo() == null || libro.getTitulo().isBlank()
+                || libro.getAutor() == null || libro.getAutor().isBlank()) {
+            throw new IllegalArgumentException("ISBN, título y autor son obligatorios");
+        }
+        if (libro.getCantidadBiblioteca() <= 0) {
+            throw new IllegalArgumentException("La cantidad total debe ser mayor que cero");
+        }
+        if (libro.getCantidadDisponible() <= 0
+                || libro.getCantidadDisponible() > libro.getCantidadBiblioteca()) {
+            throw new IllegalArgumentException(
+                "La cantidad disponible debe ser mayor que cero y no superar el total"
+            );
+        }
+    }
+
+    private void guardarLibrosActualizados(ArrayList<Libro> librosActualizados)
+            throws IOException {
+        archivoManager.guardarLibros(librosActualizados);
+        libros.clear();
+        libros.addAll(librosActualizados);
     }
 
     private void guardarUsuariosActualizados(ArrayList<Usuario> usuariosActualizados)
