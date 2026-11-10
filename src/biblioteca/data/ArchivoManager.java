@@ -13,90 +13,78 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.time.LocalDate;
 
 public class ArchivoManager {
 
-    public ArrayList<Usuario> cargarUsuarios() {
+    private final Path directorioDatos;
 
-        // Creamos una lista vacía donde guardaremos los usuarios que leamos del CSV
-        ArrayList<Usuario> usuarios = new ArrayList<>();
+    public ArchivoManager() {
+        this(Paths.get("data"));
+    }
 
-        // Indicamos la ubicación del archivo que queremos leer
-        Path ruta = Paths.get("data", "usuarios.csv");
+    public ArchivoManager(Path directorioDatos) {
+        if (directorioDatos == null) {
+            throw new IllegalArgumentException("El directorio de datos es obligatorio");
+        }
+        this.directorioDatos = directorioDatos;
+    }
 
-        // Abrimos el archivo para lectura, usando UTF-8 para los caracteres especiales
-        // El try-with-resources se encarga de cerrar el archivo automáticamente
-        try (BufferedReader br = Files.newBufferedReader(
-            ruta, StandardCharsets.UTF_8)) {
-
-                String linea;
-
-                // Leemos la primera línea para saltarnos el encabezado del CSV
-                br.readLine();
-
-                // Seguimos leyendo una línea a la vez hasta llegar al final del archivo (final = null)
-                while ((linea = br.readLine()) != null) {
-
-                    // Separamos los valores usando la coma como delimitador
-                    // Cada posición del array corresponde a una columna del CSV
-                    String[] datos = linea.split(",", -1);
-
-                    if (datos.length != 8) {
-                        throw new IOException("Fila de usuario inválida: " + linea);
-                    }
-
-                    // Guardamos los datos de cada columna en variables
-                    String tipo = datos[0];
-                    String nombreCompleto = datos[1];
-                    String run = datos[2];
-                    char genero = datos[3].charAt(0);
-                    String prestamo = datos[4];
-
-                    Usuario usuario;
-
-                    if (tipo.equals("ESTUDIANTE")) {
-
-                        String carrera = datos[5];
-
-                        usuario = new Estudiante(
-                            nombreCompleto, 
-                            run, 
-                            genero, 
-                            carrera
-                        );
-                    } else if (tipo.equals("DOCENTE")) {
-
-                        String profesion = datos[6];
-                        String grados = datos[7];
-
-                        usuario = new Docente(
-                            nombreCompleto,
-                            run,
-                            genero,
-                            profesion,
-                            grados
-                        );
-                    } else {
-                        throw new IOException(
-                            "Tipo de usuario desconocido: " + tipo
-                        );
-                    }
-
-                    // Recuperamos el préstamo que tenía guardado el usuario
-                    usuario.setPrestamo(prestamo);
-
-                    // Agregamos el objeto reconstruido a la lista
-                    usuarios.add(usuario);
-                }
-
-        } catch (IOException | NumberFormatException e) {
-
-            // Capturamos posibles errores al leer el archivo o convertir datos numéricos
-            System.out.println("Error: " + e.getMessage());
+    public ArrayList<Usuario> cargarUsuarios() throws IOException {
+        Path ruta = directorioDatos.resolve("usuarios.csv");
+        if (Files.notExists(ruta)) {
+            return new ArrayList<>();
         }
 
-        // Devolvemos la lista con todos los usuarios que logramos cargar
+        ArrayList<Usuario> usuarios = new ArrayList<>();
+        Set<String> runsRegistrados = new HashSet<>();
+        try (BufferedReader br = Files.newBufferedReader(
+            ruta, StandardCharsets.UTF_8)) {
+            String encabezado = br.readLine();
+            String encabezadoEsperado = "tipo,nombreCompleto,run,genero,prestamo,carrera,profesion,gradosAcademicos";
+            if (!encabezadoEsperado.equals(encabezado)) {
+                throw new IOException("Encabezado inválido en usuarios.csv");
+            }
+
+            String linea;
+            int numeroLinea = 1;
+            while ((linea = br.readLine()) != null) {
+                numeroLinea++;
+                if (linea.isBlank()) {
+                    continue;
+                }
+
+                String[] datos = linea.split(",", -1);
+                if (datos.length != 8 || datos[3].length() != 1) {
+                    throw new IOException("Registro inválido en usuarios.csv, línea " + numeroLinea);
+                }
+
+                try {
+                    Usuario usuario;
+                    String tipo = datos[0].trim();
+                    if (tipo.equals("ESTUDIANTE")) {
+                        usuario = new Estudiante(datos[1], datos[2], datos[3].charAt(0), datos[5]);
+                    } else if (tipo.equals("DOCENTE")) {
+                        usuario = new Docente(
+                            datos[1], datos[2], datos[3].charAt(0), datos[6], datos[7]
+                        );
+                    } else {
+                        throw new IOException("Tipo de usuario desconocido en línea " + numeroLinea);
+                    }
+
+                    usuario.setPrestamo(datos[4]);
+                    if (!runsRegistrados.add(usuario.getRun())) {
+                        throw new IOException("RUN duplicado en usuarios.csv, línea " + numeroLinea);
+                    }
+                    usuarios.add(usuario);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Datos inválidos en usuarios.csv, línea " + numeroLinea, e);
+                }
+            }
+        }
+
         return usuarios;
     }
 
@@ -144,7 +132,7 @@ public class ArchivoManager {
     public void guardarUsuarios(ArrayList<Usuario> usuarios) throws IOException {
 
         // Indicamos dónde vamos a guardar los usuarios
-        Path ruta = Paths.get("data", "usuarios.csv");
+        Path ruta = directorioDatos.resolve("usuarios.csv");
 
         // Nos aseguramos de que exista la carpeta data antes de escribir el archivo
         Files.createDirectories(ruta.getParent());
@@ -156,7 +144,7 @@ public class ArchivoManager {
             ruta, StandardCharsets.UTF_8)) {
 
             // Primero escribimos los nombres de las columnas
-            bw.write("nombreCompleto, run, genero, prestamo");
+            bw.write("tipo,nombreCompleto,run,genero,prestamo,carrera,profesion,gradosAcademicos");
             bw.newLine();
 
             // Recorremos la lista de usuarios para guardar cada uno en el archivo
@@ -208,7 +196,7 @@ public class ArchivoManager {
     public ArrayList<Libro> cargarLibros() {
 
         ArrayList<Libro> libros = new ArrayList<>();
-        Path ruta = Paths.get("data", "libros.csv");
+        Path ruta = directorioDatos.resolve("libros.csv");
 
         try (BufferedReader br = Files.newBufferedReader(
             ruta, StandardCharsets.UTF_8)) {
@@ -239,7 +227,7 @@ public class ArchivoManager {
 
     public void guardarLibros(ArrayList<Libro> libros) throws IOException {
 
-        Path ruta = Paths.get("data", "libros.csv");
+        Path ruta = directorioDatos.resolve("libros.csv");
         Files.createDirectories(ruta.getParent());
 
         try (BufferedWriter bw = Files.newBufferedWriter(
@@ -266,7 +254,7 @@ public class ArchivoManager {
     public ArrayList<Prestamo> cargarPrestamos() {
 
         ArrayList<Prestamo> prestamos = new ArrayList<>();
-        Path ruta = Paths.get("data", "prestamos.csv");
+        Path ruta = directorioDatos.resolve("prestamos.csv");
 
         try (BufferedReader br = Files.newBufferedReader(
             ruta, StandardCharsets.UTF_8)) {
@@ -296,7 +284,7 @@ public class ArchivoManager {
 
     public void guardarPrestamos(ArrayList<Prestamo> prestamos) throws IOException {
 
-        Path ruta = Paths.get("data", "prestamos.csv");
+        Path ruta = directorioDatos.resolve("prestamos.csv");
         Files.createDirectories(ruta.getParent());
 
         try (BufferedWriter bw = Files.newBufferedWriter(

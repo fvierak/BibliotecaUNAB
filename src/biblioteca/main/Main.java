@@ -11,7 +11,7 @@ public class Main {
             "Estudiante de prueba", "12345678-5", 'M', "Ingeniería"
         );
         Usuario docente = new Docente(
-            "Docente de prueba", "98765432-1", 'F', "Docencia", "Doctorado"
+            "Docente de prueba", "98765432-5", 'F', "Docencia", "Doctorado"
         );
 
         System.out.println(

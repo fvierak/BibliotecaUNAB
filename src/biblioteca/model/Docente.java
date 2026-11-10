@@ -26,6 +26,20 @@ public class Docente extends Usuario{
         return gradosAcademicos;
     }
 
+    public void setProfesion(String profesion) {
+        this.profesion = profesion;
+    }
+
+    public void setGradosAcademicos(String gradosAcademicos) {
+        this.gradosAcademicos = gradosAcademicos;
+    }
+
+    @Override
+    public String toString() {
+        return "Docente{" + super.toString() + ", profesion='" + profesion
+            + "', gradosAcademicos='" + gradosAcademicos + "'}";
+    }
+
     @Override
     public int getMaxDiasPrestamo() {
         return 20;
