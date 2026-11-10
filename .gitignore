@@ -1,0 +1,33 @@
+
+# Archivos compilados de Java
+*.class
+*.jar
+*.war
+
+# Carpetas de compilación
+bin/
+build/
+target/
+out/
+dist/
+
+# Archivos temporales
+*.log
+*.tmp
+*~
+
+# Configuración local de IDE
+.vscode/
+.idea/
+*.iml
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Datos locales privados (si se utilizan)
+.env
+
+# Documentación académica
+/GUIA_DESARROLLO_BIBLIOTECA_UNAB.md
+/docs/
