@@ -1,6 +1,10 @@
 package biblioteca.model;
 
+import java.io.IOException;
 import java.time.LocalDate;
+
+import biblioteca.Biblioteca;
+import biblioteca.data.ArchivoManager;
 
 public class Prestamo {
 

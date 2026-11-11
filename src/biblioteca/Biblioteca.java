@@ -1,6 +1,7 @@
 package biblioteca;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 import biblioteca.model.Usuario;
@@ -184,5 +185,46 @@ public class Biblioteca {
         archivoManager.guardarUsuarios(usuariosActualizados);
         usuarios.clear();
         usuarios.addAll(usuariosActualizados);
+    }
+
+    public Prestamo realizarPrestamo(String run, String isbn, int dias) throws IOException {
+        // Restricciones: - El libro debe existir.
+        //                - El libro debe tener al menos un ejemplar disponible
+        //                - El RUN debe existir
+        //                - Usuario habilitado para préstamo
+
+        Libro libro = buscarLibro(isbn);
+        Usuario usuario = buscarUsuario(run);
+
+        if (usuario == null) {
+            throw new IllegalArgumentException("No existe ese usuario");
+        }
+        if (libro == null) {
+            throw new IllegalArgumentException("No existe ese libro");
+        }
+        if (!"0".equals(usuario.getPrestamo())) {
+            throw new IllegalArgumentException("El usuario ya tiene un préstamo activo");
+        }
+        if (libro.getCantidadDisponible() <= 0) {
+            throw new IllegalArgumentException("No hay ejemplares disponibles");
+        }
+        if (dias < 1 || dias > usuario.getMaxDiasPrestamo()) {
+
+            throw new IllegalArgumentException(
+                "El plazo debe ser de 1 a " + usuario.getMaxDiasPrestamo() + " días"
+            );
+        }
+
+        LocalDate hoy = LocalDate.now(); 
+        Prestamo nuevo = new Prestamo(
+            usuario.getRun(), 
+            libro.getIsbn(), 
+            hoy, 
+            hoy.plusDays(dias), 
+            true
+        );
+
+        // Aquí se coordinan los cambios y se persisten.
+        return nuevo;
     }
 }
