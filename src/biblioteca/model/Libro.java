@@ -1,5 +1,7 @@
 package biblioteca.model;
 
+import java.io.IOException;
+
 public class Libro {
 
     private String isbn;

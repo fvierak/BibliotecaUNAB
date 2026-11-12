@@ -1,5 +1,6 @@
 package biblioteca.view;
 
+import biblioteca.Biblioteca;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -9,7 +10,11 @@ import java.awt.GridLayout;
 
 public class HomeFrame extends JFrame{
 
-    public HomeFrame() {
+    private final Biblioteca biblioteca;
+
+    public HomeFrame(Biblioteca biblioteca) {
+
+        this.biblioteca = biblioteca;
 
         // Config. básica de la ventana
         setTitle("Biblioteca UNAB");
@@ -47,7 +52,7 @@ public class HomeFrame extends JFrame{
         // Al presionar Libros, abrimos la ventana secundaria
         btnLibros.addActionListener(e -> {
 
-            LibroDialog dialog = new LibroDialog(this);
+            LibroDialog dialog = new LibroDialog(this, biblioteca);
 
             dialog.setVisible(true);
         });

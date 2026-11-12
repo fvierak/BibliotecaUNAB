@@ -1,13 +1,16 @@
 package biblioteca.view;
 
+import biblioteca.Biblioteca;
+import biblioteca.model.Libro;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JOptionPane;
+
 import java.awt.GridLayout;
 
 public class LibroDialog extends JDialog{
 
-    public LibroDialog(JFrame parent) {
+    public LibroDialog(JFrame parent, Biblioteca biblioteca) {
 
         // Indicamos la ventana padre, títullo y modalidad
         super(parent, "Gestión de libros", true);
@@ -67,32 +70,71 @@ public class LibroDialog extends JDialog{
             String isbn = txtIsbn.getText().trim();
             String titulo = txtTitulo.getText().trim();
             String autor = txtAutor.getText().trim();
+            Integer cantidadTotal = Integer.parseInt(txtCantidadTotal.getText().trim());
+            Integer cantidadDisponible = Integer.parseInt(txtCantidadDisponible.getText().trim());
             String imagen = txtImagen.getText().trim();
 
-            // Los JTextField siempre entregan texto,
-            // por eso convertimos las cantidades a enteros
             try {
-                int cantidadTotal = Integer.parseInt(
-                    txtCantidadTotal.getText().trim()
+            
+                // Creamos el objeto Libro con los datos del formulario
+                Libro nuevoLibro = new Libro(
+                isbn, 
+                titulo, 
+                autor, 
+                cantidadTotal, 
+                cantidadDisponible, 
+                imagen
                 );
 
-                int cantidadDisponible = Integer.parseInt(
-                    txtCantidadDisponible.getText().trim()
-                );
+                // Intentamos registrar el libro en la biblioteca
+                boolean creado = biblioteca.agregarLibro(nuevoLibro);
 
-                System.out.println("ISBN: " + isbn);
-                System.out.println("Título: " + titulo);
-                System.out.println("Autor: " + autor);
-                System.out.println("Cantidad total: " + cantidadTotal);
-                System.out.println("Cantidad disponible: " + cantidadDisponible);
-                System.out.println("Imagen: " + imagen);
+                if (creado) {
+
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Libro registrado correctamente."
+                    );
+
+                    dispose();
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                        this, 
+                        "Ya existe un libro con ese ISBN.",
+                        "ISBN duplicado",
+                        JOptionPane.WARNING_MESSAGE
+                    );
+                }  
 
             } catch (NumberFormatException ex) {
 
+                // Ocurre cuando una cantidad no es un entero válido
                 JOptionPane.showMessageDialog(
                     this, 
                     "Las cantidades deben ser números enteros.",
                     "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+
+            } catch (IllegalArgumentException ex) {
+
+                // Capturamos errores de validación de los datos
+                JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Datos inválidos",
+                    JOptionPane.ERROR_MESSAGE
+                );
+
+            }catch (IOException ex) {
+
+                // Capturamos problemas al guardar los archivos CSV
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "Error al guardar el archivo:\n" + ex.getMessage(),
+                    "Error de persistencia",
                     JOptionPane.ERROR_MESSAGE
                 );
             }
