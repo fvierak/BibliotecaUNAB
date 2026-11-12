@@ -1,10 +1,6 @@
 package biblioteca.model;
 
-import java.io.IOException;
 import java.time.LocalDate;
-
-import biblioteca.Biblioteca;
-import biblioteca.data.ArchivoManager;
 
 public class Prestamo {
 
@@ -37,4 +33,12 @@ public class Prestamo {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public String generarTarjeta() {
+        return "=== TARJETA DE PRESTAMO ===\n"
+            + "RUN: " + run + "\n"
+            + "ISBN: " + isbn + "\n"
+            + "Fecha de prestamo: " + fechaPrestamo + "\n"
+            + "Fecha limite de devolucion: " + fechaDevolucion;
+    }
 }

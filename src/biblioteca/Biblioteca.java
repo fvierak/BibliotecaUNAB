@@ -224,7 +224,118 @@ public class Biblioteca {
             true
         );
 
-        // Aquí se coordinan los cambios y se persisten.
+        int disponibilidadAnterior = libro.getCantidadDisponible();
+        usuario.setPrestamo(libro.getIsbn());
+        libro.setCantidadDisponible(disponibilidadAnterior - 1);
+        prestamos.add(nuevo);
+
+        boolean usuariosGuardados = false;
+        boolean librosGuardados = false;
+        try {
+            archivoManager.validarCoherencia(usuarios, libros, prestamos);
+            archivoManager.guardarUsuarios(usuarios);
+            usuariosGuardados = true;
+            archivoManager.guardarLibros(libros);
+            librosGuardados = true;
+            archivoManager.guardarPrestamos(prestamos);
+        } catch (IOException e) {
+            usuario.setPrestamo("0");
+            libro.setCantidadDisponible(disponibilidadAnterior);
+            prestamos.remove(nuevo);
+
+            if (librosGuardados) {
+                try {
+                    archivoManager.guardarLibros(libros);
+                } catch (IOException errorRestauracion) {
+                    e.addSuppressed(errorRestauracion);
+                }
+            }
+            if (usuariosGuardados) {
+                try {
+                    archivoManager.guardarUsuarios(usuarios);
+                } catch (IOException errorRestauracion) {
+                    e.addSuppressed(errorRestauracion);
+                }
+            }
+            throw e;
+        }
+
         return nuevo;
+    }
+
+    public long realizarDevolucion(String run, String isbn) throws IOException {
+        Libro libro = buscarLibro(isbn);
+        Usuario usuario = buscarUsuario(run);
+
+        if (usuario == null) {
+            throw new IllegalArgumentException("No existe ese usuario");
+        }
+        if (libro == null) {
+            throw new IllegalArgumentException("No existe ese libro");
+        }
+
+        String isbnNormalizado = libro.getIsbn();
+        if (!isbnNormalizado.equals(usuario.getPrestamo())) {
+            throw new IllegalArgumentException("El usuario no tiene este libro en préstamo");
+        }
+
+        Prestamo prestamoActivo = null;
+        for (Prestamo prestamo : prestamos) {
+            if (prestamo.isActivo() && prestamo.getRun().equals(usuario.getRun())
+                    && prestamo.getIsbn().equals(isbnNormalizado)) {
+                prestamoActivo = prestamo;
+                break;
+            }
+        }
+        if (prestamoActivo == null) {
+            throw new IllegalArgumentException("No existe un préstamo activo para ese usuario y libro");
+        }
+        if (libro.getCantidadDisponible() >= libro.getCantidadBiblioteca()) {
+            throw new IllegalStateException("La disponibilidad del libro ya alcanzó el total de ejemplares");
+        }
+
+        LocalDate hoy = LocalDate.now();
+        long diasAtraso = Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(
+            prestamoActivo.getFechaDevolucion(), hoy
+        ));
+        long multa = diasAtraso * 1000L;
+        int disponibilidadAnterior = libro.getCantidadDisponible();
+
+        usuario.setPrestamo("0");
+        libro.setCantidadDisponible(disponibilidadAnterior + 1);
+        prestamoActivo.setActivo(false);
+
+        boolean usuariosGuardados = false;
+        boolean librosGuardados = false;
+        try {
+            archivoManager.validarCoherencia(usuarios, libros, prestamos);
+            archivoManager.guardarUsuarios(usuarios);
+            usuariosGuardados = true;
+            archivoManager.guardarLibros(libros);
+            librosGuardados = true;
+            archivoManager.guardarPrestamos(prestamos);
+        } catch (IOException e) {
+            usuario.setPrestamo(isbnNormalizado);
+            libro.setCantidadDisponible(disponibilidadAnterior);
+            prestamoActivo.setActivo(true);
+
+            if (librosGuardados) {
+                try {
+                    archivoManager.guardarLibros(libros);
+                } catch (IOException errorRestauracion) {
+                    e.addSuppressed(errorRestauracion);
+                }
+            }
+            if (usuariosGuardados) {
+                try {
+                    archivoManager.guardarUsuarios(usuarios);
+                } catch (IOException errorRestauracion) {
+                    e.addSuppressed(errorRestauracion);
+                }
+            }
+            throw e;
+        }
+
+        return multa;
     }
 }
