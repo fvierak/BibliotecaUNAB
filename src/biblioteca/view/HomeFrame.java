@@ -43,6 +43,14 @@ public class HomeFrame extends JFrame{
 
         // Incorporamos el panel a la ventana
         add(panel);
+
+        // Al presionar Libros, abrimos la ventana secundaria
+        btnLibros.addActionListener(e -> {
+
+            LibroDialog dialog = new LibroDialog(this);
+
+            dialog.setVisible(true);
+        });
     }
 
 }
