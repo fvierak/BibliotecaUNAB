@@ -1,3 +1,4 @@
 isbn,titulo,autor,cantidadBiblioteca,cantidadDisponible,imagen
 978123,El Hobbit,J.R.R. Tolkien,5,3,hobbit.jpg
 978456,Dune,Frank Herbert,3,2,dune.jpg
+978607,Un Mago de Terramar,Ursula K. Le Guin,1,0,magoTerramar.jpg

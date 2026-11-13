@@ -93,7 +93,7 @@ public class EliminarLibroDialog extends JDialog {
 
                     JOptionPane.showMessageDialog(
                         this,
-                        "No fue posible eliminar el libro.",
+                        "No se puede eliminar el libro porque tiene préstamos activos.",
                         "Operación rechazada",
                         JOptionPane.WARNING_MESSAGE
                     );
