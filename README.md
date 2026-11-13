@@ -19,7 +19,6 @@ src/biblioteca/
   view/                       Ventanas y diálogos Swing
 tests/biblioteca/tests/       Pruebas ejecutables sin framework
 data/                         CSV utilizados por la aplicación
-docs/                         Guía, fuentes oficiales e informes del proyecto
 ```
 
 ## Compilar y ejecutar
@@ -48,24 +47,6 @@ La aplicación lee y escribe los CSV del directorio `data` relativo al directori
 
 El Home abre diálogos modales para las operaciones. Los formularios delegan las reglas de negocio a `Biblioteca`. La tarjeta del préstamo puede visualizarse e imprimirse mediante la impresión estándar de Swing.
 
-## Pruebas
+## Observaciones
 
-Las pruebas son clases Java ejecutables que crean directorios temporales; no deben escribirse datos ficticios en los CSV reales.
-
-```powershell
-$salida = Join-Path $env:TEMP "BibliotecaUNAB-pruebas"
-New-Item -ItemType Directory -Force $salida | Out-Null
-$fuentes = @(Get-ChildItem src -Recurse -Filter *.java | ForEach-Object FullName) + @(Get-ChildItem tests -Recurse -Filter *.java | ForEach-Object FullName)
-javac -encoding UTF-8 -d $salida $fuentes
-java -cp $salida biblioteca.tests.BibliotecaUsuariosTest
-java -cp $salida biblioteca.tests.ArchivoManagerPersistenciaTest
-java -cp $salida biblioteca.tests.BibliotecaLibrosTest
-java -cp $salida biblioteca.tests.BibliotecaPrestamosTest
-```
-
-## Limitaciones y entrega
-
-- La interfaz Swing debe probarse manualmente además de las pruebas automatizadas del núcleo.
-- Los archivos de instrucciones oficiales piden una carpeta completa de proyecto generada por NetBeans. El desarrollo de este repositorio se mantiene en VS Code, según la decisión del equipo. No se migró; confirmar con el docente si se acepta el proyecto actual.
-- La rúbrica menciona `customers`, arriendos y 14 aspectos no definidos para biblioteca. Esta discrepancia se documenta en `docs/matriz_cumplimiento.md`; no se implementaron funcionalidades ajenas al caso.
-- Completar nombres reales del equipo en la plantilla de entrega antes de presentar.
+- El desarrollo de este proyecto se realiza en VS Code.
