@@ -5,7 +5,7 @@ import biblioteca.model.Libro;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
 public class LibroDialog extends JDialog{
@@ -22,8 +22,8 @@ public class LibroDialog extends JDialog{
         JPanel panel = new JPanel();
         panel.setBorder(new EmptyBorder(20, 20, 20, 20));
     
-        // 7 filas y 2 columnas
-        panel.setLayout(new GridLayout(7, 2, 10, 10));
+        // 6 filas y 2 columnas
+        panel.setLayout(new GridLayout(6, 2, 10, 10));
 
         // Campos del formulario
         JTextField txtIsbn = new JTextField();
@@ -55,14 +55,68 @@ public class LibroDialog extends JDialog{
         // Botones
         JButton btnGuardar = new JButton("Guardar");
         JButton btnCancelar = new JButton("Cancelar");
+        JButton btnBuscar = new JButton("Buscar");
 
-        panel.add(btnGuardar);
-        panel.add(btnCancelar);
+        // Creamos un panel separado para los botones
+        JPanel panelBotones = new JPanel();
 
-        add(panel);
+        panelBotones.setLayout(new GridLayout(1, 3, 10, 10));
+
+        // añadimos márgenes al panel inferior sin modificar los del formulario
+        panelBotones.setBorder(new EmptyBorder(0, 20, 20, 20));
+
+        // Agregamos los botones al nuevo panel
+        panelBotones.add(btnBuscar);
+        panelBotones.add(btnGuardar);
+        panelBotones.add(btnCancelar);
+
+        // El formulario ocupará el centro de la ventana
+        add(panel, BorderLayout.CENTER);
+
+        // Los botones quedarán en la parte inferior
+        add(panelBotones, BorderLayout.SOUTH);
 
         // Cierra solamente el diálogo, no la aplicación
         btnCancelar.addActionListener(e -> dispose());
+
+        btnBuscar.addActionListener(e -> {
+
+            // Recuperamos el ISBN ingresado
+            String isbn = txtIsbn.getText().trim();
+
+            // Buscamos el libro en la biblioteca
+            Libro libro = biblioteca.buscarLibro(isbn);
+
+            // Si no existe, mostramos un mensaje y terminamos
+            if (libro == null) {
+
+                JOptionPane.showMessageDialog(
+                    this, 
+                    "No se encontró un libro con ese ISBN.",
+                    "Libro no encontrado",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+
+            // Si existe, completamos los campos con sus atributos
+            txtTitulo.setText(libro.getTitulo());
+            txtAutor.setText(libro.getAutor());
+
+            // Convertimos los números a String para mostrarlos
+            txtCantidadTotal.setText(
+                String.valueOf(libro.getCantidadBiblioteca())
+            );
+
+            txtCantidadDisponible.setText(
+                String.valueOf(libro.getCantidadDisponible())
+            );
+
+            txtImagen.setText(
+                libro.getImagen() == null ? "" : libro.getImagen()  // Operador ternario: Si la imagen es nell, mostrar texto vacío. De lo contrario, mostrar su ruta.
+            );
+        });
 
         btnGuardar.addActionListener(e -> {
 
