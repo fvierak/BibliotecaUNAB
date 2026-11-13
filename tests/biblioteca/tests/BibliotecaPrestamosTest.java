@@ -54,6 +54,12 @@ public class BibliotecaPrestamosTest {
             comprobar(tarjeta.contains(prestamo.getFechaPrestamo().toString())
                 && tarjeta.contains(prestamo.getFechaDevolucion().toString()),
                 "La tarjeta contiene las dos fechas");
+            String tarjetaImprimible = prestamo.generarTarjeta("Libro de prueba");
+            comprobar(tarjetaImprimible.contains("Libro de prueba")
+                && tarjetaImprimible.contains("Plazo: 7 días"),
+                "La tarjeta contiene título y plazo para impresión");
+            comprobar(prestamo.generarTarjeta("Libro de prueba", "Ana Pérez")
+                .contains("Usuario: Ana Pérez"), "La tarjeta identifica al usuario por nombre");
 
             esperarError(() -> biblioteca.realizarPrestamo("12345678-5", "9780000000001", 1),
                 "Segundo préstamo activo del usuario rechazado");

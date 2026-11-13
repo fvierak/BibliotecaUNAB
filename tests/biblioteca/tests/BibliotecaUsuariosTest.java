@@ -39,6 +39,12 @@ public class BibliotecaUsuariosTest {
 
         esperarError(() -> new Estudiante("Prueba", "12345678-4", 'M', "Informática"),
             "Constructor rechaza RUN inválido");
+        esperarError(() -> new Estudiante("Prueba", "12345678-5", 'M', " "),
+            "Constructor rechaza carrera vacía");
+        esperarError(() -> new Docente("Prueba", "98765432-5", 'M', "", "Doctorado"),
+            "Constructor rechaza profesión vacía");
+        esperarError(() -> new Docente("Prueba", "98765432-5", 'M', "Docencia", " "),
+            "Constructor rechaza grados académicos vacíos");
     }
 
     private static void probarValidacionGenero() {

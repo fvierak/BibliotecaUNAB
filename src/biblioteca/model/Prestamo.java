@@ -1,6 +1,7 @@
 package biblioteca.model;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Prestamo {
 
@@ -35,10 +36,22 @@ public class Prestamo {
     public void setActivo(boolean activo) { this.activo = activo; }
 
     public String generarTarjeta() {
+        return generarTarjeta("No informado");
+    }
+
+    public String generarTarjeta(String tituloLibro) {
+        return generarTarjeta(tituloLibro, "Usuario con RUN " + run);
+    }
+
+    public String generarTarjeta(String tituloLibro, String nombreUsuario) {
+        long diasPrestamo = ChronoUnit.DAYS.between(fechaPrestamo, fechaDevolucion);
         return "=== TARJETA DE PRESTAMO ===\n"
+            + "Título: " + tituloLibro + "\n"
+            + "Usuario: " + nombreUsuario + "\n"
             + "RUN: " + run + "\n"
             + "ISBN: " + isbn + "\n"
             + "Fecha de prestamo: " + fechaPrestamo + "\n"
+            + "Plazo: " + diasPrestamo + " días\n"
             + "Fecha limite de devolucion: " + fechaDevolucion;
     }
 }

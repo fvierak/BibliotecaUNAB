@@ -2,6 +2,7 @@ package biblioteca.model;
 
 public class Docente extends Usuario{
 
+    private String tipo = "DOCENTE";
     private String profesion;
     private String gradosAcademicos;    // "Magíster", "Doctorado" o "Magíster y Doctorado"
 
@@ -14,8 +15,13 @@ public class Docente extends Usuario{
     ) {
         super(nombreCompleto, run, genero);
 
-        this.profesion = profesion;
-        this.gradosAcademicos = gradosAcademicos;
+        setProfesion(profesion);
+        setGradosAcademicos(gradosAcademicos);
+    }
+
+    @Override
+    public String getTipo() {
+        return "Docente";
     }
 
     public String getProfesion() {
@@ -27,10 +33,16 @@ public class Docente extends Usuario{
     }
 
     public void setProfesion(String profesion) {
+        if (profesion == null || profesion.isBlank()) {
+            throw new IllegalArgumentException("La profesión es obligatoria");
+        }
         this.profesion = profesion;
     }
 
     public void setGradosAcademicos(String gradosAcademicos) {
+        if (gradosAcademicos == null || gradosAcademicos.isBlank()) {
+            throw new IllegalArgumentException("Los grados académicos son obligatorios");
+        }
         this.gradosAcademicos = gradosAcademicos;
     }
 

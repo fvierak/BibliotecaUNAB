@@ -87,6 +87,10 @@ public abstract class Usuario {
     }
 
     // Getters: permiten consultar los atributos privados del usuario.
+    public abstract String getTipo() {
+        
+    }
+    
     public String getNombre() {
         return nombreCompleto;
     }

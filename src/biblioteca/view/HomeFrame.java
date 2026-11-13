@@ -34,7 +34,7 @@ public class HomeFrame extends JFrame{
         // Creamos los elementos de la interfaz
         JLabel titulo = new  JLabel("Sistema de Biblioteca UNAB");
 
-        JButton btnUsuarios = new JButton("Ususarios");
+        JButton btnUsuarios = new JButton("Usuarios");
         JButton btnLibros = new JButton("Libros");
         JButton btnPrestamos = new JButton("Préstamos");
         JButton btnDevoluciones = new JButton("Devoluciones");
@@ -56,6 +56,15 @@ public class HomeFrame extends JFrame{
 
             dialog.setVisible(true);
         });
+
+        btnUsuarios.addActionListener(e ->
+            new UsuariosDialog(this, biblioteca).setVisible(true));
+
+        btnPrestamos.addActionListener(e ->
+            new RegistrarPrestamoDialog(this, biblioteca).setVisible(true));
+
+        btnDevoluciones.addActionListener(e ->
+            new DevolucionDialog(this, biblioteca).setVisible(true));
     }
 
 }
