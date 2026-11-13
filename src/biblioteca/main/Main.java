@@ -1,9 +1,6 @@
 package biblioteca.main;
 
 import biblioteca.Biblioteca;
-import biblioteca.model.Docente;
-import biblioteca.model.Estudiante;
-import biblioteca.model.Usuario;
 import biblioteca.view.HomeFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
