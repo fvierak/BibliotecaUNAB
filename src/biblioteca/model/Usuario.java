@@ -86,11 +86,9 @@ public abstract class Usuario {
         return generoNormalizado == 'M' || generoNormalizado == 'F';
     }
 
-    // Getters: permiten consultar los atributos privados del usuario.
-    public abstract String getTipo() {
-        
-    }
-    
+    public abstract String getTipo();
+
+    // Getters: permiten consultar los atributos privados del usuario.    
     public String getNombre() {
         return nombreCompleto;
     }
