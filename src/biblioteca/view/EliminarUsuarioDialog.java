@@ -40,10 +40,12 @@ public class EliminarUsuarioDialog extends JDialog {
                         "Usuario no encontrado", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
-                int respuesta = JOptionPane.showConfirmDialog(this,
-                    "¿Eliminar este usuario?\n\n" + usuario,
+                int respuesta = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Eliminar este usuario?\n\n" + usuario.getNombre() + "\n" + usuario.getRun() + "\n" + usuario.getTipo(),
                     "Confirmar eliminación", JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.WARNING_MESSAGE
+                );
                 if (respuesta != JOptionPane.YES_OPTION) {
                     return;
                 }
